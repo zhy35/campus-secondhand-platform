@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 import Home from '../views/Home.vue'
 
 const routes = [
@@ -20,32 +20,27 @@ const routes = [
   {
     path: '/products',
     name: 'Products',
-    component: () => import('../views/Products.vue'),
-    meta: { requiresAuth: true }
+    component: () => import('../views/Products.vue')
   },
   {
     path: '/product/:id',
     name: 'ProductDetail',
-    component: () => import('../views/ProductDetail.vue'),
-    meta: { requiresAuth: true }
+    component: () => import('../views/ProductDetail.vue')
   },
   {
     path: '/products/create',
     name: 'CreateProduct',
-    component: () => import('../views/CreateProduct.vue'),
-    meta: { requiresAuth: true }
+    component: () => import('../views/CreateProduct.vue')
   },
   {
     path: '/profile',
     name: 'Profile',
-    component: () => import('../views/Profile.vue'),
-    meta: { requiresAuth: true }
+    component: () => import('../views/Profile.vue')
   },
   {
     path: '/my-products',
     name: 'MyProducts',
-    component: () => import('../views/MyProducts.vue'),
-    meta: { requiresAuth: true }
+    component: () => import('../views/MyProducts.vue')
   },
   {
     path: '/about',
@@ -60,26 +55,8 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHashHistory(), // 改为 hash 模式
   routes
-})
-
-// 路由守卫 - 检查登录状态
-router.beforeEach((to, from, next) => {
-  const token = localStorage.getItem('token')
-
-  // 检查路由是否需要认证
-  if (to.meta.requiresAuth && !token) {
-    // 如果需要认证但没有token，跳转到登录页
-    next('/login')
-  } else {
-    // 如果已登录但访问登录/注册页，跳转到首页
-    if (token && (to.name === 'Login' || to.name === 'Register')) {
-      next('/')
-    } else {
-      next()
-    }
-  }
 })
 
 export default router
