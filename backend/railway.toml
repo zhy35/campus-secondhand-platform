@@ -1,0 +1,9 @@
+[build]
+builder = "maven"
+
+[deploy]
+startCommand = "java -jar target/secondhand.jar"
+
+[env]
+JAVA_VERSION = "11"
+SPRING_PROFILES_ACTIVE = "prod"

@@ -1,0 +1,298 @@
+# 多环境配置
+spring:
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}  # 默认使用dev环境
+  main:
+    allow-bean-definition-overriding: true
+  # 完全禁用 Spring Security 自动配置
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
+      - org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
+      - org.springframework.boot.autoconfigure.security.servlet.SecurityFilterAutoConfiguration
+
+---
+# 开发环境配置
+spring:
+  config:
+    activate:
+      on-profile: dev
+  # 数据源配置
+  datasource:
+    url: jdbc:mysql://localhost:3306/campus_secondhand?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      # 连接池配置
+      initial-size: 5
+      min-idle: 5
+      max-active: 20
+      max-wait: 60000
+      time-between-eviction-runs-millis: 60000
+      min-evictable-idle-time-millis: 300000
+      validation-query: SELECT 1
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+      # 监控配置
+      stat-view-servlet:
+        enabled: true
+        url-pattern: /druid/*
+        login-username: admin
+        login-password: admin123
+      web-stat-filter:
+        enabled: true
+        url-pattern: /*
+        exclusions: "*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*"
+  # JPA 配置
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+        generate_statistics: false
+  # 文件上传配置
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+      enabled: true
+  # 静态资源和CORS配置
+  web:
+    resources:
+      static-locations: file:./uploads/,classpath:/static/
+    cors:
+      allowed-origins: "http://localhost:3000,http://localhost:5173,http://localhost:3002"
+      allowed-methods: "GET,POST,PUT,DELETE,OPTIONS,HEAD"
+      allowed-headers: "*"
+      allow-credentials: true
+      max-age: 3600
+
+# 服务器配置
+server:
+  port: 8088
+  servlet:
+    context-path: /api
+  tomcat:
+    max-swallow-size: -1
+    connection-timeout: 30000
+
+# 自定义应用配置
+app:
+  # JWT 配置
+  jwt:
+    secret: campus-secondhand-secret-key-2025-gdpu-software-engineering-project
+    expiration: 7200000  # 2小时
+  # 文件上传配置
+  file:
+    upload-dir: ./uploads
+    access-path: /uploads/**
+
+# 日志配置
+logging:
+  level:
+    com.campus.secondhand: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.springframework.security: INFO
+  file:
+    name: logs/campus-secondhand.log
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  logback:
+    rollingpolicy:
+      max-file-size: 10MB
+      max-history: 30
+
+# 开发配置
+debug: false
+
+# 完全禁用安全管理
+management:
+  security:
+    enabled: false
+
+# 安全配置（完全禁用）
+security:
+  basic:
+    enabled: false
+  ignored: /**
+
+---
+# 生产环境配置
+spring:
+  config:
+    activate:
+      on-profile: prod
+  # 数据源配置 - 使用环境变量
+  datasource:
+    url: ${DATABASE_URL:jdbc:mysql://localhost:3306/campus_secondhand?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true}
+    username: ${DATABASE_USERNAME:root}
+    password: ${DATABASE_PASSWORD:123456}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      # 生产环境连接池配置（更保守）
+      initial-size: 3
+      min-idle: 3
+      max-active: 15
+      max-wait: 30000
+      time-between-eviction-runs-millis: 60000
+      min-evictable-idle-time-millis: 300000
+      validation-query: SELECT 1
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+      # 生产环境关闭监控
+      stat-view-servlet:
+        enabled: false
+      web-stat-filter:
+        enabled: false
+  # JPA 配置
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false  # 生产环境关闭SQL日志
+    properties:
+      hibernate:
+        format_sql: false
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+        generate_statistics: false
+  # 文件上传配置
+  servlet:
+    multipart:
+      max-file-size: 5MB  # 生产环境限制更小
+      max-request-size: 5MB
+      enabled: true
+  # 静态资源和CORS配置
+  web:
+    resources:
+      static-locations: file:./uploads/,classpath:/static/
+    cors:
+      allowed-origins: ${ALLOWED_ORIGINS:http://localhost:3000}
+      allowed-methods: "GET,POST,PUT,DELETE,OPTIONS,HEAD"
+      allowed-headers: "*"
+      allow-credentials: true
+      max-age: 3600
+
+# 生产环境服务器配置
+server:
+  port: ${PORT:8080}  # Railway等平台会注入PORT环境变量
+  servlet:
+    context-path: /api
+  tomcat:
+    max-swallow-size: -1
+    connection-timeout: 30000
+  # 生产环境压缩配置
+  compression:
+    enabled: true
+    mime-types: text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json
+    min-response-size: 1024
+
+# 生产环境应用配置
+app:
+  # JWT 配置 - 生产环境使用环境变量
+  jwt:
+    secret: ${JWT_SECRET:campus-secondhand-secret-key-2025-gdpu-software-engineering-project}
+    expiration: 7200000  # 2小时
+  # 文件上传配置
+  file:
+    upload-dir: ./uploads
+    access-path: /uploads/**
+
+# 生产环境日志配置
+logging:
+  level:
+    com.campus.secondhand: INFO
+    org.hibernate.SQL: WARN
+    org.hibernate.type.descriptor.sql.BasicBinder: WARN
+    org.springframework.security: WARN
+  file:
+    name: logs/campus-secondhand.log
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  logback:
+    rollingpolicy:
+      max-file-size: 50MB  # 生产环境日志文件更大
+      max-history: 60      # 保留更多历史日志
+
+# 生产环境配置
+debug: false
+
+# 生产环境安全管理
+management:
+  security:
+    enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: "health,info"  # 只暴露必要的端点
+
+# 安全配置（完全禁用）
+security:
+  basic:
+    enabled: false
+  ignored: /**
+
+---
+# 测试环境配置
+spring:
+  config:
+    activate:
+      on-profile: test
+  # 测试环境使用H2内存数据库
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password: ""
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+  # 测试环境CORS配置
+  web:
+    cors:
+      allowed-origins: "*"
+      allowed-methods: "*"
+      allowed-headers: "*"
+      allow-credentials: false
+
+# 测试环境服务器配置
+server:
+  port: 8081
+  servlet:
+    context-path: /api
+
+# 测试环境应用配置
+app:
+  jwt:
+    secret: test-jwt-secret-key
+    expiration: 3600000  # 1小时
+  file:
+    upload-dir: ./test-uploads
+    access-path: /uploads/**
+
+# 测试环境日志配置
+logging:
+  level:
+    com.campus.secondhand: DEBUG
+    org.hibernate.SQL: DEBUG
