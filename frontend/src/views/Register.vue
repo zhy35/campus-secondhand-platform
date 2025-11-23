@@ -184,7 +184,7 @@ const checkUsername = async () => {
   usernameStatus.value = 'checking'
 
   try {
-    const response = await fetch(`/api/user/check-username?username=${encodeURIComponent(form.username)}`)
+    const response = await fetch(`https://hyaloplasmic-surprisedly-margie.ngrok-free.dev/api/api/user/check-username?username=${encodeURIComponent(form.username)}`)
     if (response.ok) {
       const result = await response.json()
       usernameStatus.value = result.data ? 'taken' : 'available'
@@ -207,7 +207,7 @@ const checkEmail = async () => {
   emailStatus.value = 'checking'
 
   try {
-    const response = await fetch(`/api/user/check-email?email=${encodeURIComponent(form.email)}`)
+    const response = await fetch(`https://hyaloplasmic-surprisedly-margie.ngrok-free.dev/api/api/user/check-email?email=${encodeURIComponent(form.email)}`)
     if (response.ok) {
       const result = await response.json()
       emailStatus.value = result.data ? 'taken' : 'available'
@@ -242,7 +242,7 @@ const handleRegister = async () => {
       studentId: form.studentId
     }
 
-    const response = await fetch('/api/user/register', {
+    const response = await fetch('https://hyaloplasmic-surprisedly-margie.ngrok-free.dev/api/api/user/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
