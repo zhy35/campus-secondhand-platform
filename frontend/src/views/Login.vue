@@ -61,7 +61,7 @@ const handleLogin = async () => {
   loading.value = true
 
   try {
-    const response = await fetch('/api/auth/login', {
+    const response = await fetch('https://hyaloplasmic-surprisedly-margie.ngrok-free.dev/api/api/auth/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
